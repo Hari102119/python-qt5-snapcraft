@@ -1,4 +1,4 @@
-name: testqt
+name: ble-mesh-gateway
 version: '0.1'
 summary: Ubuntu high voltage ceiling fan testing ui application
 description: |
