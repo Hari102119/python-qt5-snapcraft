@@ -1,0 +1,57 @@
+name: testqt
+version: '0.1'
+summary: Ubuntu high voltage ceiling fan testing ui application
+description: |
+  This is a ui application which uses python to build the hv cf tester ui application
+grade: devel
+confinement: devmode
+type: app
+
+base: core20
+
+parts:
+  testqt-build:
+    source: .
+    plugin: python
+    build-packages: [qt5-default]
+    stage-packages:
+        - python3-pyqt5
+        - qtwayland5
+
+
+  mir-kiosk-snap-launch:
+    plugin: dump
+    source: https://github.com/MirServer/mir-kiosk-snap-launch.git
+    override-build:  $SNAPCRAFT_PART_BUILD/build-with-plugs.sh opengl wayland
+    stage-packages: [inotify-tools]
+
+
+  mesa:
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+      - libwayland-egl1-mesa
+      - libglu1-mesa
+
+architectures:
+  - build-on: armhf
+    run-on: armhf
+
+apps:
+  testqt-app:
+    command-chain:
+      - bin/wayland-launch  
+    command: bin/testqtqt
+    plugs:
+        - x11
+        - unity7
+        - gsettings
+        - opengl
+        - wayland
+
+environment:
+  LD_LIBRARY_PATH: ${SNAP}/usr/lib/:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/
+  # Prep EGL
+  __EGL_VENDOR_LIBRARY_DIRS: $SNAP/etc/glvnd/egl_vendor.d:$SNAP/usr/share/glvnd/egl_vendor.d
+  LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+  LIBVA_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
